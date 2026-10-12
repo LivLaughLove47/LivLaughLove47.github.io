@@ -53,28 +53,6 @@ comedies <- netflix_titles|>
     str_detect(listed_in, "Comedies"))
 
  
- actors <- c(
-  "Adam Sandler",
-  "Jim Carrey",
-  "Will Ferrell",
-  "Ben Stiller",
-  "Eddie Murphy",
-  "Steve Carell",
-  "Seth Rogen",
-  "Jonah Hill",
-  "Paul Rudd",
-  "Kevin Hart",
-  "Jack Black",
-  "Melissa McCarthy",
-  "Kristen Wiig",
-  "Tina Fey",
-  "Amy Poehler",
-  "Maya Rudolph",
-  "Tiffany Haddish",
-  "Jennifer Aniston",
-  "Sandra Bullock",
-  "Julia Roberts"
-)
 comedies <- comedies |>
   mutate(
     famous_actor = str_detect(
@@ -96,8 +74,14 @@ comedies <- comedies |>
     x = "Decade",
     y = "Number of Movies"
   ) +
-  theme_minimal(base_family = "Helvetica Neue")
+  theme_minimal(base_family = "Helvetica Neue")+
+theme_light()+
+theme(
+  text = element_text(size = 9, color = "#263D69")
+)
 
 ```
 
-I want to create a new variable to see if the actors are in using lookaround, and string detect 
+Romance Movies
+
+```
