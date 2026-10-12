@@ -23,7 +23,8 @@ netflix_titles <- readr::read_csv('https://raw.githubusercontent.com/rfordatasci
 netflix_titles <- netflix_titles|>
   mutate(rating_fct = fct_relevel(factor(rating),  "G", "TV-Y", "TV-G", "TV-Y7", "TV-Y7-FV",
 "PG", "TV-PG", "PG-13", "TV-14",
-"R", "TV-MA", "NC-17"))
+"R", "TV-MA", "NC-17"))|>
+  mutate( decade = floor(release_year / 10) * 10)
 murder <- netflix_titles|>
   filter(str_detect(description, regex("murder|\\bkill(ed)?\\b", ignore_case = TRUE)))
 ```
@@ -57,8 +58,7 @@ comedies <- comedies |>
   mutate(
     famous_actor = str_detect(
       cast, "\\b(Adam Sandler|Jim Carrey|Will Ferrell|Ben Stiller|Eddie Murphy|Steve Carell|Seth Rogen|Jonah Hill|Paul Rudd|Kevin Hart|Jack Black|Melissa McCarthy|Kristen Wiig|Tina Fey|Amy Poehler|Maya Rudolph|Tiffany Haddish|Jennifer Aniston|Sandra Bullock|Julia Roberts)(?=,|$)"
-      ))|>
-   mutate( decade = floor(release_year / 10) * 10)
+      ))
     
   
   comedies |>
@@ -82,6 +82,16 @@ theme(
 
 ```
 
-Romance Movies
+Americ
 
+```{r}
+romcom <- netflix_titles|>
+  filter(type == "Movie", str_detect(listed_in, "Comedies"))|>
+  filter(str_detect(listed_in, "Romantic Movies"))|>
+  mutate(female = str_count(description, "she|her|hers"))|>
+  mutate(male = str_count(description, "him|he|his"))
+romcom|>
+  ggplot(aes(x = male, y = female))+
+  geom_jitter(width = 0.5, height = 0.5) +
+  geom_abline(slope = 1, intercept = 0)
 ```
