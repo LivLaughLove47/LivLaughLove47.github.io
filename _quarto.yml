@@ -12,5 +12,8 @@ website:
             href: TidyTuesday.qmd
           - text: "Taylor Swift"
             href: TidyTuesday2.qmd
+          - text: "Netflix"
+            href: netflix.qmd
+
 
     

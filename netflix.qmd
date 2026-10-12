@@ -1,0 +1,103 @@
+---
+title: "Netflix Data Analysis"
+author: "Olivia Rosenthal"
+format: html
+execute: 
+  warning: false
+  message: false
+---
+```{r}
+#| echo: false
+library(tidyverse)
+library(openintro)
+netflix_titles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-04-20/netflix_titles.csv')
+```
+
+I want to see the average rating of shows and movies that have the word murder in their description, these could be horrors, thrillers, mystery etc.
+
+Make graph of this, use string extract all to find murder
+```{r}
+netflix_titles <- netflix_titles|>
+  mutate(rating_fct = fct_relevel(factor(rating),  "G", "TV-Y", "TV-G", "TV-Y7", "TV-Y7-FV",
+"PG", "TV-PG", "PG-13", "TV-14",
+"R", "TV-MA", "NC-17"))
+```
+```{r}
+murder <- netflix_titles|>
+  filter(str_detect(description, regex("murder|\\bkill(ed)?\\b", ignore_case = TRUE)))
+
+
+```
+
+```{r}
+murder|>
+  ggplot(aes(y = rating_fct))+
+  geom_bar(fill = "#B0CCFF")+
+  facet_wrap(~type, scales = "free_x")+
+  labs(title = "Netflix Media with Murder", x = "Number", y = "Rating")+
+  theme_minimal(base_family = "Helvetica Neue")+
+theme_light()+
+theme(
+  text = element_text(size = 14, color = "#263D69")
+)+
+theme(
+  strip.background = element_rect(fill = "#263D69", color = NA),
+  strip.text = element_text(size = 14, color = "#FFEBE8")
+)
+```
+
+Rom com exploration
+```{r}
+comedies <- netflix_titles|>
+  filter(type == "Movie", str_detect(country, "United States"),
+    str_detect(listed_in, "Comedies"))
+
+ 
+ actors <- c(
+  "Adam Sandler",
+  "Jim Carrey",
+  "Will Ferrell",
+  "Ben Stiller",
+  "Eddie Murphy",
+  "Steve Carell",
+  "Seth Rogen",
+  "Jonah Hill",
+  "Paul Rudd",
+  "Kevin Hart",
+  "Jack Black",
+  "Melissa McCarthy",
+  "Kristen Wiig",
+  "Tina Fey",
+  "Amy Poehler",
+  "Maya Rudolph",
+  "Tiffany Haddish",
+  "Jennifer Aniston",
+  "Sandra Bullock",
+  "Julia Roberts"
+)
+comedies <- comedies |>
+  mutate(
+    famous_actor = str_detect(
+      cast, "\\b(Adam Sandler|Jim Carrey|Will Ferrell|Ben Stiller|Eddie Murphy|Steve Carell|Seth Rogen|Jonah Hill|Paul Rudd|Kevin Hart|Jack Black|Melissa McCarthy|Kristen Wiig|Tina Fey|Amy Poehler|Maya Rudolph|Tiffany Haddish|Jennifer Aniston|Sandra Bullock|Julia Roberts)(?=,|$)"
+      ))|>
+   mutate( decade = floor(release_year / 10) * 10)
+    
+  
+  comedies |>
+  ggplot(aes(x = decade, fill = famous_actor)) +
+  geom_bar() +
+  scale_fill_manual(
+    values = c("TRUE" = "#263D69", "FALSE" = "#B0CCFF"),
+    labels = c("FALSE" = "No", "TRUE" = "Yes"),
+    name = "Contains Famous Comedy Actor"
+  ) +
+  labs(
+    title = "American Comedies by Release Year",
+    x = "Decade",
+    y = "Number of Movies"
+  ) +
+  theme_minimal(base_family = "Helvetica Neue")
+
+```
+
+I want to create a new variable to see if the actors are in using lookaround, and string detect 
