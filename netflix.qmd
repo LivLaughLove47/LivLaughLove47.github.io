@@ -1,8 +1,11 @@
 ---
 title: "Netflix Data Analysis"
 author: "Olivia Rosenthal"
-format: html
-execute: 
+format:
+  html:
+    code-fold: true
+    code-summary: "Show Code"
+execute:
   warning: false
   message: false
 ---
@@ -10,24 +13,21 @@ execute:
 #| echo: false
 library(tidyverse)
 library(openintro)
-netflix_titles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-04-20/netflix_titles.csv')
 ```
 
 I want to see the average rating of shows and movies that have the word murder in their description, these could be horrors, thrillers, mystery etc.
 
 Make graph of this, use string extract all to find murder
 ```{r}
+netflix_titles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-04-20/netflix_titles.csv')
 netflix_titles <- netflix_titles|>
   mutate(rating_fct = fct_relevel(factor(rating),  "G", "TV-Y", "TV-G", "TV-Y7", "TV-Y7-FV",
 "PG", "TV-PG", "PG-13", "TV-14",
 "R", "TV-MA", "NC-17"))
-```
-```{r}
 murder <- netflix_titles|>
   filter(str_detect(description, regex("murder|\\bkill(ed)?\\b", ignore_case = TRUE)))
-
-
 ```
+
 
 ```{r}
 murder|>
