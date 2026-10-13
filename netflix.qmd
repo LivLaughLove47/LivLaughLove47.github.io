@@ -15,9 +15,10 @@ library(tidyverse)
 library(openintro)
 ```
 
-I want to see the average rating of shows and movies that have the word murder in their description, these could be horrors, thrillers, mystery etc.
+### Netflix Media with Murder
 
-Make graph of this, use string extract all to find murder
+For this graph, I wanted to look at the content ratings of movies and TV shows on Netflix that mention murder or killing in their descriptions. I filtered the data to include descriptions containing the words "murder," "kill," or "killed." I then made a bar graph to compare how many movies and TV shows fall into each rating category. I was interested in seeing whether media that mentions murder tends to have more mature ratings and whether there is a difference between movies and TV shows.
+
 ```{r}
 netflix_titles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-04-20/netflix_titles.csv')
 netflix_titles <- netflix_titles|>
@@ -47,7 +48,9 @@ theme(
 )
 ```
 
-Rom com exploration
+### American Comedies by Decade
+
+For this graph, I looked at American comedy movies on Netflix and which decades they were released in. I chose a list of famous comedy actors, including Adam Sandler, Jim Carrey, and Amy Pohler, and used their names to see which movies featured at least one of these actors. I then made a bar graph to compare the number of comedies released in each decade and how many featured someone from my list. I wanted to see whether famous comedy actors appeared more frequently in certain decades and how the number of American comedies changed over time.
 ```{r}
 comedies <- netflix_titles|>
   filter(type == "Movie", str_detect(country, "United States"),
@@ -82,16 +85,40 @@ theme(
 
 ```
 
-Americ
+### Romantic Comedy
+
+For this graph, I made a data table of all movies that were listed in the categories "Romantic Movies" and "Comedies" to find the romcoms, I then looked in the descriptions of the movie to see which used male pronouns and female pronouns. I also looked at the titles to see which one used some variation of the word love.
 
 ```{r}
 romcom <- netflix_titles|>
   filter(type == "Movie", str_detect(listed_in, "Comedies"))|>
   filter(str_detect(listed_in, "Romantic Movies"))|>
-  mutate(female = str_count(description, "she|her|hers"))|>
-  mutate(male = str_count(description, "him|he|his"))
-romcom|>
-  ggplot(aes(x = male, y = female))+
-  geom_jitter(width = 0.5, height = 0.5) +
-  geom_abline(slope = 1, intercept = 0)
+ mutate(female = str_count(description, regex("\\b(she|her|hers)\\b", ignore_case = TRUE))) |>
+mutate(male = str_count(description, regex("\\b(him|he|his)\\b", ignore_case = TRUE)))|>
+mutate(love = str_extract(title, regex("\\b(love|lover|loved)\\b", ignore_case = TRUE))) |>
+mutate(love = if_else(!is.na(love), "Love", "No Love"))
+
+  romcom |>
+  ggplot(aes(x = male, y = female, color = love)) +
+  geom_jitter(width = 0.5, height = 0.5, size = 2.5) +
+  geom_abline(slope = 1, intercept = 0, color = "#263D69") +
+  scale_color_manual(
+    values = c("Love" = "#263D69", "No Love" = "#B0CCFF"),
+    name = "Love in Title"
+  ) +
+  labs(
+    title = "Gendered Pronouns in Romantic Comedies",
+    x = "Male Pronouns",
+    y = "Female Pronouns"
+  ) +
+  theme_light(base_family = "Helvetica Neue") +
+  theme(
+    text = element_text(size = 14, color = "#263D69")
+  )
 ```
+
+### About the Data
+
+For this project, I used the Netflix Titles dataset from TidyTuesday (April 20, 2021). The original dataset was shared on Kaggle by Shivam Bansal and contains information about movies and TV shows available on Netflix, including their titles, genres, cast members, release years, content ratings, and descriptions.
+
+**Source:** [TidyTuesday Netflix Dataset](https://github.com/rfordatascience/tidytuesday/blob/main/data/2021/2021-04-20/readme.md)
