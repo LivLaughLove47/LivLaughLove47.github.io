@@ -8,7 +8,7 @@
 
 <meta name="author" content="Olivia Rosenthal">
 
-<title>Does Chocolate Win Halloween? – Liv Rosenthal’s Website!</title>
+<title>Candy Data Analysis – Liv Rosenthal’s Website!</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -78,7 +78,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2c169b83e1fc2996b25bcc8774810429.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-ece42c8223ec2bf36298a08f122c9a68.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -110,7 +110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -161,27 +161,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#original-data" id="toc-original-data" class="nav-link" data-scroll-target="#original-data">Original data</a></li>
-  <li><a href="#simulating-the-null-hypothesis" id="toc-simulating-the-null-hypothesis" class="nav-link" data-scroll-target="#simulating-the-null-hypothesis">Simulating the null hypothesis</a></li>
-  <li><a href="#null-permutation-distribution" id="toc-null-permutation-distribution" class="nav-link" data-scroll-target="#null-permutation-distribution">Null permutation distribution</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
-  <li><a href="#data-source" id="toc-data-source" class="nav-link" data-scroll-target="#data-source">Data source</a></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Does Chocolate Win Halloween?</h1>
-<p class="subtitle lead">A permutation test of candy popularity</p>
+<h1 class="title">Candy Data Analysis</h1>
 </div>
 
 
@@ -204,108 +190,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>I have always thought that the best candies contain chocolate and peanuts, but in this analysis I am focusing on <strong>chocolate</strong> alone. I am using FiveThirtyEight’s dataset of 85 candies, which records their ingredients and their win percentages in head-to-head online candy matchups. I want to know whether candies containing chocolate have a higher average win percentage than candies without chocolate. To investigate this question, I will compare the original group means and run a permutation test that simulates the null hypothesis of no relationship between chocolate content and win percentage.</p>
-<p><strong>Research question:</strong> Do chocolate candies have a higher average win percentage than non-chocolate candies?</p>
-<ul>
-<li><strong>Null hypothesis:</strong> Chocolate content and win percentage are unrelated.</li>
-<li><strong>Alternative hypothesis:</strong> Chocolate candies have a higher average win percentage.</li>
-<li><strong>Test statistic:</strong> Mean win percentage for chocolate candies minus mean win percentage for non-chocolate candies (in percentage points).</li>
-</ul>
-</section>
-<section id="original-data" class="level2">
-<h2 class="anchored" data-anchor-id="original-data">Original data</h2>
+<section id="chocolate-candy-performance" class="level3">
+<h3 class="anchored" data-anchor-id="chocolate-candy-performance">Chocolate Candy Performance</h3>
+<p>For this project, I wanted to look at whether chocolate candies perform better than candies without chocolate. I personally think the best candies contain chocolate and peanuts, so I was interested in seeing whether chocolate was associated with candy popularity. I used the FiveThirtyEight candy dataset, where each row represents a candy and the columns describe its different attributes. The win percentage represents how often a candy was chosen when participants were presented with two candy options.</p>
+<p>My null hypothesis is that chocolate content and win percentage are not associated. My alternative hypothesis is that chocolate candies have a higher average win percentage than non-chocolate candies. I will use a permutation test to simulate the null hypothesis and see whether the observed difference is unusual.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show R code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>candy <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv"</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<summary>Show Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>candy <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>candy <span class="ot">&lt;-</span> candy <span class="sc">|&gt;</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">chocolate =</span> <span class="fu">if_else</span>(chocolate <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span>))</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>candy <span class="sc">|&gt;</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(competitorname, chocolate, winpercent) <span class="sc">|&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(chocolate, winpercent) <span class="sc">|&gt;</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 3
-  competitorname chocolate winpercent
-  &lt;chr&gt;          &lt;chr&gt;          &lt;dbl&gt;
-1 100 Grand      Yes             67.0
-2 3 Musketeers   Yes             67.6
-3 One dime       No              32.3
-4 One quarter    No              46.1
-5 Air Heads      No              52.3
-6 Almond Joy     Yes             50.3</code></pre>
+<pre><code># A tibble: 6 × 2
+  chocolate winpercent
+  &lt;chr&gt;          &lt;dbl&gt;
+1 Yes             67.0
+2 Yes             67.6
+3 No              32.3
+4 No              46.1
+5 No              52.3
+6 Yes             50.3</code></pre>
 </div>
 </div>
-<p>Each row represents one candy. The <code>chocolate</code> variable tells us whether the candy contains chocolate, and <code>winpercent</code> is the percentage of head-to-head matchups in which the candy was chosen.</p>
-<p>First, I visualize the original data with a boxplot. The individual points represent candies, and the yellow diamonds show the means that I will compare in my permutation test.</p>
+<p>First, I made a boxplot to compare the win percentages of chocolate and non-chocolate candies. This allows us to see the difference in the distributions before running the simulation. Each group contains candies with a range of win percentages, but I am especially interested in comparing their averages.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show R code</summary>
+<summary>Show Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>candy <span class="sc">|&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> chocolate, <span class="at">y =</span> winpercent, <span class="at">fill =</span> chocolate)) <span class="sc">+</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.48</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.75</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">outlier.shape =</span> <span class="cn">NA</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.13</span>,</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.6</span>,</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"#2A0081"</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">fun =</span> mean,</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">geom =</span> <span class="st">"point"</span>,</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="dv">23</span>,</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">4</span>,</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"#F9C45C"</span>,</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"#2A0081"</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"No"</span> <span class="ot">=</span> <span class="st">"#D8C7F2"</span>, <span class="st">"Yes"</span> <span class="ot">=</span> <span class="st">"#F4A6C6"</span>),</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Chocolate and Candy Popularity"</span>,</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Each point is one candy; yellow diamonds mark group means"</span>,</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Contains chocolate"</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Head-to-head matchups won (%)"</span>,</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Data: FiveThirtyEight candy power ranking"</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> <span class="st">"#401465"</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> chocolate, <span class="at">y =</span> winpercent)) <span class="sc">+</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#2A0081"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Chocolate Candy Performance"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Contains Chocolate"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Win Percentage"</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_family =</span> <span class="st">"Helvetica Neue"</span>) <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">color =</span> <span class="st">"#2A0081"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="candy_files/figure-html/original-boxplot-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="candy_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>To measure the observed gap, I calculate the mean win percentage of each group and subtract the non-chocolate mean from the chocolate mean.</p>
+</section>
+<section id="difference-in-mean-win-percentage" class="level3">
+<h3 class="anchored" data-anchor-id="difference-in-mean-win-percentage">Difference in Mean Win Percentage</h3>
+<p>Next, I calculated the mean win percentage for chocolate and non-chocolate candies. Chocolate candies had an average win percentage of approximately 60.9%, while non-chocolate candies had an average of approximately 42.1%. This gives an observed difference of about 18.8 percentage points. I want to see whether this difference could reasonably occur if chocolate content and win percentage were unrelated.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show R code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>group_means <span class="ot">&lt;-</span> candy <span class="sc">|&gt;</span></span>
+<summary>Show Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>candy <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(chocolate) <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_win =</span> <span class="fu">mean</span>(winpercent),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>group_means</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_win =</span> <span class="fu">mean</span>(winpercent))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
@@ -315,7 +264,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 2 Yes           60.9</code></pre>
 </div>
 <details class="code-fold">
-<summary>Show R code</summary>
+<summary>Show Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>observed_diff <span class="ot">&lt;-</span> candy <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">diff =</span> <span class="fu">mean</span>(winpercent[chocolate <span class="sc">==</span> <span class="st">"Yes"</span>]) <span class="sc">-</span></span>
@@ -329,53 +278,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>[1] 18.77927</code></pre>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled" title="Observed difference">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Observed difference
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Chocolate candies have a mean win percentage of <strong>60.9%</strong>, compared with <strong>42.1%</strong> for non-chocolate candies.</p>
-<p>The difference is <strong>18.8 percentage points</strong> in favor of chocolate candies.</p>
-</div>
-</div>
 </section>
-<section id="simulating-the-null-hypothesis" class="level2">
-<h2 class="anchored" data-anchor-id="simulating-the-null-hypothesis">Simulating the null hypothesis</h2>
-<p>Under the null hypothesis, chocolate content should not be associated with win percentage.</p>
-<p>I wrote <code>shuffle_test()</code> to shuffle the existing win percentages without replacement while leaving the Yes/No chocolate labels in place. The function then recalculates the mean for each group and returns the difference between them. This produces <strong>one</strong> simulated difference under the null hypothesis.</p>
+<section id="permutation-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="permutation-simulation">Permutation Simulation</h3>
+<p>To test the null hypothesis, I wrote a function called <code>shuffle_test()</code>. This function randomly shuffles the win percentages while keeping the chocolate Yes/No labels the same. It then calculates the average shuffled win percentage for both groups and returns the difference between their means. By shuffling the percentages, I am simulating what the difference could look like if there were no association between chocolate content and win percentage.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show R code</summary>
+<summary>Show Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>shuffle_test <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  shuffled <span class="ot">&lt;-</span> candy <span class="sc">|&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">shuffled_percent =</span> <span class="fu">sample</span>(</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        winpercent,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">replace =</span> <span class="cn">FALSE</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  diff <span class="ot">&lt;-</span> shuffled <span class="sc">|&gt;</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">diff =</span> <span class="fu">mean</span>(shuffled_percent[chocolate <span class="sc">==</span> <span class="st">"Yes"</span>]) <span class="sc">-</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mean</span>(shuffled_percent[chocolate <span class="sc">==</span> <span class="st">"No"</span>])</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(diff)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(diff)</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">shuffled_percent =</span> <span class="fu">sample</span>(winpercent,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">size =</span> <span class="dv">85</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">replace =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  diff <span class="ot">&lt;-</span> shuffled <span class="sc">|&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">diff =</span> <span class="fu">mean</span>(shuffled_percent[chocolate <span class="sc">==</span> <span class="st">"Yes"</span>]) <span class="sc">-</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mean</span>(shuffled_percent[chocolate <span class="sc">==</span> <span class="st">"No"</span>])</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(diff)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(diff)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>I use <code>map_dbl()</code> to run that function 5,000 times. Each call returns one number, so <code>map_dbl()</code> is useful because it puts the results into a numeric vector. <code>tibble()</code> then stores them in a data frame that I can plot.</p>
+<p>I then used <code>map_dbl()</code> to run my function 5,000 times. I chose <code>map_dbl()</code> because my function returns one numerical value each time, which is the difference in means from one shuffle. I stored the results in a tibble so I could visualize the distribution of simulated differences.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show R code</summary>
+<summary>Show Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>simulations <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
@@ -397,13 +328,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="null-permutation-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="null-permutation-distribution">Null permutation distribution</h2>
-<p>The histogram shows all 5,000 simulated differences in means. If the null hypothesis is true, I would expect the simulated differences to cluster around zero.</p>
-<p>The dashed pink line shows the <em>observed</em> difference from the original candy data, so we can see whether it is unusually large relative to the null distribution.</p>
+<section id="null-distribution-of-candy-popularity" class="level3">
+<h3 class="anchored" data-anchor-id="null-distribution-of-candy-popularity">Null Distribution of Candy Popularity</h3>
+<p>I made a histogram to visualize the 5,000 simulated differences in mean win percentage. The purple bars show the differences that occurred under the null hypothesis, and the pink line represents the observed difference from the original data. The simulated differences should be centered around zero because the null hypothesis assumes that chocolate content and win percentage are unrelated.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show R code</summary>
+<summary>Show Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>simulations <span class="sc">|&gt;</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> diff)) <span class="sc">+</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
@@ -413,84 +343,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> observed_diff,</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"#D62F8B"</span>,</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">1.2</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Null Distribution of Candy Win Percentages"</span>,</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"5,000 permutations under the null hypothesis"</span>,</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Difference in mean win percentage (Yes - No), percentage points"</span>,</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of simulations"</span>,</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Dashed pink line = observed difference"</span></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> <span class="st">"#2A0081"</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"#BA1780"</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="dv">1</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Null Distribution of Candy Win Percentages"</span>,</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"5,000 Permutations Under the Null Hypothesis"</span>,</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Difference in Mean Win Percentage (Yes - No)"</span>,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of Simulations"</span>,</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pink line represents the observed difference"</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_family =</span> <span class="st">"Helvetica Neue"</span>) <span class="sc">+</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">color =</span> <span class="st">"#2A0081"</span>)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="candy_files/figure-html/null-histogram-1.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="candy_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Because my alternative hypothesis predicts a higher win percentage for chocolate candies, I use a <strong>right-tailed p-value</strong>. This is the proportion of simulations whose difference is greater than or equal to the observed difference.</p>
+</section>
+<section id="p-value-and-results" class="level3">
+<h3 class="anchored" data-anchor-id="p-value-and-results">P-Value and Results</h3>
+<p>To calculate the p-value, I found the proportion of simulated differences that were greater than or equal to the observed difference. Because my alternative hypothesis is that chocolate candies perform better, I used a right-tailed test. None of my 5,000 simulations produced a difference as large as the observed difference, giving me a simulated p-value of zero. This does not mean the true p-value is exactly zero, but it suggests that the observed difference is extremely unlikely under the null hypothesis.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show R code</summary>
+<summary>Show Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> simulations <span class="sc">|&gt;</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">p =</span> <span class="fu">mean</span>(diff <span class="sc">&gt;=</span> observed_diff)) <span class="sc">|&gt;</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(p)</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>extreme_count <span class="ot">&lt;-</span> <span class="fu">sum</span>(simulations<span class="sc">$</span>diff <span class="sc">&gt;=</span> observed_diff)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>p_value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0</code></pre>
-</div>
-<details class="code-fold">
-<summary>Show R code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>extreme_count</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>p_value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
 </div>
 </div>
-<div class="callout callout-style-default callout-important callout-titled" title="Permutation test result">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Permutation test result
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>0 out of 5,000</strong> simulated differences were at least as large as the observed difference of <strong>18.8 percentage points</strong>.</p>
-<p>The simulated right-tail proportion was <strong>0</strong>.</p>
-<p>Because no simulations were as extreme, I report p &lt; 0.0002 to reflect the simulation’s resolution; this does not mean the true p-value is exactly zero.</p>
-</div>
-</div>
 </section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>The original data show that chocolate candies have a higher mean win percentage than candies without chocolate, with an observed difference of <strong>18.8 percentage points</strong>.</p>
-<p>I wrote a function that shuffles win percentages and used <code>map_dbl()</code> to repeat it 5,000 times, creating a null distribution for the difference in means.</p>
-<p>None of those simulations produced a difference as large as the observed one, providing strong evidence of an association between chocolate content and win percentage in this dataset.</p>
-<p>Because the candies and the online participants were not randomly sampled from all candies and consumers, I cannot generalize this result to everyone or claim that chocolate <em>causes</em> a candy to be more popular.</p>
+<section id="conclusion" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
+<p>For this project, I investigated whether chocolate candies have higher average win percentages than non-chocolate candies. I wrote a function to randomly shuffle win percentages and used <code>map_dbl()</code> to repeat the simulation 5,000 times. My observed difference was approximately 18.8 percentage points, and none of my simulations produced a difference as large as the original, giving a simulated p-value of zero (which I report as p &lt; 0.0002). This provides strong evidence of an association between chocolate content and win percentage among these 85 candies, although the data do not establish causation or necessarily represent the preferences of all candy consumers.</p>
 </section>
-<section id="data-source" class="level2">
-<h2 class="anchored" data-anchor-id="data-source">Data source</h2>
-<p>I downloaded the data from <a href="https://github.com/fivethirtyeight/data/blob/master/candy-power-ranking/candy-data.csv">FiveThirtyEight’s candy-data.csv</a>.</p>
-<p>The original data come from Walt Hickey’s <em>The Ultimate Halloween Candy Power Ranking</em> for FiveThirtyEight, based on online head-to-head candy preference matchups.</p>
-<p><a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">Dataset documentation and provenance</a>.</p>
+<section id="about-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="about-the-data">About the Data</h3>
+<p>For this project, I used the Halloween Candy Power Ranking dataset from FiveThirtyEight. The original data came from an online survey in which participants chose their preferred candy in head-to-head matchups. The dataset includes 85 candies and information about their ingredients, characteristics, and win percentages.</p>
+<p><strong>Source:</strong> <a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">FiveThirtyEight Candy Power Ranking Dataset</a></p>
+<p><strong>Original data:</strong> Walt Hickey, <em>The Ultimate Halloween Candy Power Ranking</em>, FiveThirtyEight (2017).</p>
 
 
 </section>
