@@ -1,64 +1,139 @@
 ---
-title: "Candy Data"
+title: "Does Chocolate Win Halloween?"
+subtitle: "A permutation test of candy popularity"
 author: "Olivia Rosenthal"
-format: html
-execute: 
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true
+    code-summary: "Show R code"
+    code-copy: true
+execute:
   warning: false
   message: false
 ---
 
-This data set is a data set of candy where each row is a candy and each column is an attribute. The attributes are in 1s and 0s for yes or no and percentages for percentage winning meaning when presented with two candy options, users chose that one over another one. I think the best candy is ones with chocolate and peanuts. I want to see if those perform better than other candies. My alternative hypothesis is that candy with both chocolate and peanuts/almonds perform better than candy without those elements. My null hypothesis is that they perform the same. I will run a permutation test to see if chocolate is associated with higher win percentage. I will simulate the null hypothesis
-## Intro
+## Introduction
 
+I have always thought that the best candies contain chocolate and peanuts, but in this analysis I am focusing on **chocolate** alone. I am using FiveThirtyEight's dataset of 85 candies, which records their ingredients and their win percentages in head-to-head online candy matchups. I want to know whether candies containing chocolate have a higher average win percentage than candies without chocolate. To investigate this question, I will compare the original group means and run a permutation test that simulates the null hypothesis of no relationship between chocolate content and win percentage.
+
+**Research question:** Do chocolate candies have a higher average win percentage than non-chocolate candies?
+
+- **Null hypothesis:** Chocolate content and win percentage are unrelated.
+- **Alternative hypothesis:** Chocolate candies have a higher average win percentage.
+- **Test statistic:** Mean win percentage for chocolate candies minus mean win percentage for non-chocolate candies (in percentage points).
+
+## Original data
 
 ```{r}
+#| label: load-candy
 library(tidyverse)
 
 candy <- read_csv(
   "https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv"
-)
-candy <- candy |>
+) |>
   mutate(chocolate = if_else(chocolate == 1, "Yes", "No"))
 
+candy |>
+  select(competitorname, chocolate, winpercent) |>
+  head()
 ```
 
-We have a column that tells us if it has chocolate or not and the win percent
-```{r}
-candy|>
-    select(chocolate, winpercent)|>
-    head()
+Each row represents one candy. The `chocolate` variable tells us whether the candy contains chocolate, and `winpercent` is the percentage of head-to-head matchups in which the candy was chosen.
 
+First, I visualize the original data with a boxplot. The individual points represent candies, and the yellow diamonds show the means that I will compare in my permutation test.
+
+```{r}
+#| label: original-boxplot
+#| fig-width: 8
+#| fig-height: 5
+candy |>
+  ggplot(aes(x = chocolate, y = winpercent, fill = chocolate)) +
+  geom_boxplot(
+    width = 0.48,
+    alpha = 0.75,
+    outlier.shape = NA
+  ) +
+  geom_jitter(
+    width = 0.13,
+    alpha = 0.6,
+    color = "#2A0081"
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 23,
+    size = 4,
+    fill = "#F9C45C",
+    color = "#2A0081"
+  ) +
+  scale_fill_manual(
+    values = c("No" = "#D8C7F2", "Yes" = "#F4A6C6"),
+    guide = "none"
+  ) +
+  labs(
+    title = "Chocolate and Candy Popularity",
+    subtitle = "Each point is one candy; yellow diamonds mark group means",
+    x = "Contains chocolate",
+    y = "Head-to-head matchups won (%)",
+    caption = "Data: FiveThirtyEight candy power ranking"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(
+      face = "bold",
+      color = "#401465"
+    )
+  )
 ```
- Now we want to 
-```{r}
-ggplot(candy, aes(x = chocolate, y = winpercent))+
-  geom_boxplot()+
-  labs(x = "Contains chocolate", y="Win Percentage", title = "Chocolate Candy Performance")
-```
 
-For our permutation test we are taking the values of chocolate yes/no and shuffling around the win percetages to see if we can reject null hypothesis.
+To measure the observed gap, I calculate the mean win percentage of each group and subtract the non-chocolate mean from the chocolate mean.
 
-Calculate mean win percentage
 ```{r}
+#| label: observed-difference
+group_means <- candy |>
+  group_by(chocolate) |>
+  summarize(
+    mean_win = mean(winpercent),
+    .groups = "drop"
+  )
+
+group_means
+
 observed_diff <- candy |>
-   summarize(
+  summarize(
     diff = mean(winpercent[chocolate == "Yes"]) -
            mean(winpercent[chocolate == "No"])
   ) |>
   pull(diff)
-```
-chocolate mean win percentage: no chocolate: 42.1% yes chocolate: 60.9
 
-observed diff = 60.9 - 42.1 = 18.8
-null hypothesis is that there is no difference in mean.
+observed_diff
+```
+
+::: {.callout-note title="Observed difference"}
+Chocolate candies have a mean win percentage of **`r round(group_means$mean_win[group_means$chocolate == "Yes"], 1)`%**, compared with **`r round(group_means$mean_win[group_means$chocolate == "No"], 1)`%** for non-chocolate candies.
+
+The difference is **`r round(observed_diff, 1)` percentage points** in favor of chocolate candies.
+:::
+
+## Simulating the null hypothesis
+
+Under the null hypothesis, chocolate content should not be associated with win percentage.
+
+I wrote `shuffle_test()` to shuffle the existing win percentages without replacement while leaving the Yes/No chocolate labels in place. The function then recalculates the mean for each group and returns the difference between them. This produces **one** simulated difference under the null hypothesis.
+
 ```{r}
-set.seed(4747)
+#| label: custom-function
 shuffle_test <- function() {
 
   shuffled <- candy |>
-    mutate(shuffled_percent = sample(winpercent,
-                                      size = 85,
-                                      replace = FALSE))
+    mutate(
+      shuffled_percent = sample(
+        winpercent,
+        replace = FALSE
+      )
+    )
 
   diff <- shuffled |>
     summarize(
@@ -71,17 +146,30 @@ shuffle_test <- function() {
 }
 ```
 
-Now we run the simulation and store the results in a data frame to use in a graph
+I use `map_dbl()` to run that function 5,000 times. Each call returns one number, so `map_dbl()` is useful because it puts the results into a numeric vector. `tibble()` then stores them in a data frame that I can plot.
 
 ```{r}
+#| label: simulation
 set.seed(123)
 
 simulations <- tibble(
   diff = map_dbl(1:5000, ~ shuffle_test())
 )
+
+head(simulations)
 ```
 
+## Null permutation distribution
+
+The histogram shows all 5,000 simulated differences in means. If the null hypothesis is true, I would expect the simulated differences to cluster around zero.
+
+The dashed pink line shows the *observed* difference from the original candy data, so we can see whether it is unusually large relative to the null distribution.
+
 ```{r}
+#| label: null-histogram
+#| fig-width: 9
+#| fig-height: 5
+
 simulations |>
   ggplot(aes(x = diff)) +
   geom_histogram(
@@ -89,27 +177,64 @@ simulations |>
     fill = "#2A0081",
     color = "white"
   ) +
-    geom_vline(
+  geom_vline(
     xintercept = observed_diff,
-    color = "#BA1780",
-    linewidth = 1
-  )+
+    color = "#D62F8B",
+    linetype = "dashed",
+    linewidth = 1.2
+  ) +
   labs(
     title = "Null Distribution of Candy Win Percentages",
-    x = "Difference in Mean Win Percentage (Yes - No)",
-    y = "Number of Simulations"
+    subtitle = "5,000 permutations under the null hypothesis",
+    x = "Difference in mean win percentage (Yes - No), percentage points",
+    y = "Number of simulations",
+    caption = "Dashed pink line = observed difference"
   ) +
-  theme_minimal()
-p_value <- simulations |>
-  summarize(p = mean(diff >= observed_diff))
-p_value
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(
+      face = "bold",
+      color = "#2A0081"
+    )
+  )
 ```
 
-### Data Source
+Because my alternative hypothesis predicts a higher win percentage for chocolate candies, I use a **right-tailed p-value**. This is the proportion of simulations whose difference is greater than or equal to the observed difference.
 
-Data for this visualization was accessed through the 
-[TidyTuesday Pixar Films dataset](https://github.com/rfordatascience/tidytuesday/tree/main/data/2025/2025-03-11).
+```{r}
+#| label: p-value
+p_value <- simulations |>
+  summarize(p = mean(diff >= observed_diff)) |>
+  pull(p)
 
-**Original data:**  
-Leung, Eric. *pixarfilms: An R Data Package to Explore Pixar Films, the People, and Reception Data*. 
-Data provided mostly in part by Wikipedia.
+extreme_count <- sum(simulations$diff >= observed_diff)
+
+p_value
+extreme_count
+```
+
+::: {.callout-important title="Permutation test result"}
+**`r extreme_count` out of 5,000** simulated differences were at least as large as the observed difference of **`r round(observed_diff, 1)` percentage points**.
+
+The simulated right-tail proportion was **`r p_value`**.
+
+`r if (extreme_count == 0) "Because no simulations were as extreme, I report p < 0.0002 to reflect the simulation's resolution; this does not mean the true p-value is exactly zero." else "This proportion estimates how unusual the observed gap would be under the no-association null hypothesis."`
+:::
+
+## Conclusion
+
+The original data show that chocolate candies have a higher mean win percentage than candies without chocolate, with an observed difference of **`r round(observed_diff, 1)` percentage points**.
+
+I wrote a function that shuffles win percentages and used `map_dbl()` to repeat it 5,000 times, creating a null distribution for the difference in means.
+
+`r if (extreme_count == 0) "None of those simulations produced a difference as large as the observed one, providing strong evidence of an association between chocolate content and win percentage in this dataset." else paste0("The simulated p-value was ", signif(p_value, 3), ", which describes how unusual the observed difference is under the null model.")`
+
+Because the candies and the online participants were not randomly sampled from all candies and consumers, I cannot generalize this result to everyone or claim that chocolate *causes* a candy to be more popular.
+
+## Data source
+
+I downloaded the data from [FiveThirtyEight's candy-data.csv](https://github.com/fivethirtyeight/data/blob/master/candy-power-ranking/candy-data.csv).
+
+The original data come from Walt Hickey's *The Ultimate Halloween Candy Power Ranking* for FiveThirtyEight, based on online head-to-head candy preference matchups.
+
+[Dataset documentation and provenance](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking).
