@@ -1,0 +1,115 @@
+---
+title: "Candy Data"
+author: "Olivia Rosenthal"
+format: html
+execute: 
+  warning: false
+  message: false
+---
+
+This data set is a data set of candy where each row is a candy and each column is an attribute. The attributes are in 1s and 0s for yes or no and percentages for percentage winning meaning when presented with two candy options, users chose that one over another one. I think the best candy is ones with chocolate and peanuts. I want to see if those perform better than other candies. My alternative hypothesis is that candy with both chocolate and peanuts/almonds perform better than candy without those elements. My null hypothesis is that they perform the same. I will run a permutation test to see if chocolate is associated with higher win percentage. I will simulate the null hypothesis
+## Intro
+
+
+```{r}
+library(tidyverse)
+
+candy <- read_csv(
+  "https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv"
+)
+candy <- candy |>
+  mutate(chocolate = if_else(chocolate == 1, "Yes", "No"))
+
+```
+
+We have a column that tells us if it has chocolate or not and the win percent
+```{r}
+candy|>
+    select(chocolate, winpercent)|>
+    head()
+
+```
+ Now we want to 
+```{r}
+ggplot(candy, aes(x = chocolate, y = winpercent))+
+  geom_boxplot()+
+  labs(x = "Contains chocolate", y="Win Percentage", title = "Chocolate Candy Performance")
+```
+
+For our permutation test we are taking the values of chocolate yes/no and shuffling around the win percetages to see if we can reject null hypothesis.
+
+Calculate mean win percentage
+```{r}
+observed_diff <- candy |>
+   summarize(
+    diff = mean(winpercent[chocolate == "Yes"]) -
+           mean(winpercent[chocolate == "No"])
+  ) |>
+  pull(diff)
+```
+chocolate mean win percentage: no chocolate: 42.1% yes chocolate: 60.9
+
+observed diff = 60.9 - 42.1 = 18.8
+null hypothesis is that there is no difference in mean.
+```{r}
+set.seed(4747)
+shuffle_test <- function() {
+
+  shuffled <- candy |>
+    mutate(shuffled_percent = sample(winpercent,
+                                      size = 85,
+                                      replace = FALSE))
+
+  diff <- shuffled |>
+    summarize(
+      diff = mean(shuffled_percent[chocolate == "Yes"]) -
+             mean(shuffled_percent[chocolate == "No"])
+    ) |>
+    pull(diff)
+
+  return(diff)
+}
+```
+
+Now we run the simulation and store the results in a data frame to use in a graph
+
+```{r}
+set.seed(123)
+
+simulations <- tibble(
+  diff = map_dbl(1:5000, ~ shuffle_test())
+)
+```
+
+```{r}
+simulations |>
+  ggplot(aes(x = diff)) +
+  geom_histogram(
+    bins = 30,
+    fill = "#2A0081",
+    color = "white"
+  ) +
+    geom_vline(
+    xintercept = observed_diff,
+    color = "#BA1780",
+    linewidth = 1
+  )+
+  labs(
+    title = "Null Distribution of Candy Win Percentages",
+    x = "Difference in Mean Win Percentage (Yes - No)",
+    y = "Number of Simulations"
+  ) +
+  theme_minimal()
+p_value <- simulations |>
+  summarize(p = mean(diff >= observed_diff))
+p_value
+```
+
+### Data Source
+
+Data for this visualization was accessed through the 
+[TidyTuesday Pixar Films dataset](https://github.com/rfordatascience/tidytuesday/tree/main/data/2025/2025-03-11).
+
+**Original data:**  
+Leung, Eric. *pixarfilms: An R Data Package to Explore Pixar Films, the People, and Reception Data*. 
+Data provided mostly in part by Wikipedia.
