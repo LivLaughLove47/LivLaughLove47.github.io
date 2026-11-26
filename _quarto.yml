@@ -16,6 +16,8 @@ website:
             href: netflix.qmd
           - text: "Candy Analysis"
             href: candy.qmd
+          - text: "Target Ethics"
+            href: DataEthics.qmd
 
 
     

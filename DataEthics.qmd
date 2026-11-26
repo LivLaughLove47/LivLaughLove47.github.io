@@ -1,0 +1,55 @@
+---
+title: "How Much Does Target Really Know About You?"
+subtitle: "The Ethics of Predictive Analytics"
+author: "Olivia Rosenthal"
+format:
+  html:
+    toc: true
+    toc-title: "Contents"
+---
+
+## Introduction
+
+**Companies track our habits to market products to us, but at what point does this become unethical?**
+
+In his 2012 *New York Times Magazine* article, ["How Companies Learn Your Secrets,"](https://www.nytimes.com/2012/02/19/magazine/shopping-habits.html) Charles Duhigg explores how companies use data science and the science of habit formation to influence consumers' spending habits. At Target, customers are assigned a Guest ID whenever possible, which allows the company to associate their purchases with personal and demographic information. Andrew Pole, a statistician at Target, used data from customers who had created baby registries to identify patterns in their shopping habits throughout their pregnancies. Using this information, he created a predictive model based on approximately 25 products that could estimate whether a customer was pregnant and when she was likely to give birth (Duhigg, 2012). Target could then use these predictions to strategically market products to customers. While impressive, this model and tactic for marketing raises ethical concerns about how much companies should know about their customers and what they should be allowed to do with that information.
+
+## Ethical Considerations
+
+Using the [Data Values and Principles Manifesto](https://datapractices.org/manifesto/), I evaluated four ethical considerations regarding Target's use of data science.
+
+### Principle 1: Use data to improve life for our users, customers, organizations, and communities.
+
+Target's data model was used to identify potentially pregnant women and provide them with coupons and advertisements for baby-related products. One could argue that this is helpful because it makes pregnant women aware of deals and products they will need for their upcoming birth and child. In her [*Forbes* article](https://www.forbes.com/sites/kashmirhill/2012/02/24/target-isnt-just-predicting-pregnancies-expect-more-savvy-data-mining-tricks/), Kashmir Hill (2012) explains that Target also analyzes customers' coupon usage to determine how large of a discount will incentivize them to purchase a product. While the intention behind these models is primarily to increase sales, customers can also benefit from saving money and receiving more relevant advertisements. I do not think using data for personalized marketing is inherently unethical, but I do think it is important to consider whether the data is being used to benefit the customer or simply to get them to spend more money.
+
+### Principle 6: Be open to changing our methods and conclusions in response to new knowledge.
+
+Target did change its marketing methods when it realized that customers were uncomfortable with how much the company knew about them. However, rather than reconsidering whether it was ethical to predict pregnancies without customers' knowledge, Target changed how it presented its advertisements. According to Duhigg (2012), Target began mixing advertisements for baby products with unrelated products to make the personalized advertisements appear coincidental. From a data science and marketing perspective, Target successfully recognized a problem and adapted its methods. From an ethical perspective, however, I think Target addressed the wrong problem. The problem was not necessarily that customers knew they were being tracked, but that customers were uncomfortable with being tracked to that extent. Rather than addressing their concerns, Target made it more difficult for customers to recognize what was happening.
+
+### Principle 10: Respect and invite fair criticism while promoting the identification and open discussion of errors, risks, and unintended consequences of our work.
+
+While most people probably have some idea that companies and apps track their behaviors, I certainly did not know the extent to which this happens and how dedicated companies are to piggybacking on our habits to get us to buy things. I am okay with personalized marketing using my data because I don't want to be sold a tortoise harness when what I need is a lizard leash. However, I think companies should be more transparent about the extent to which they are invested in our data. Duhigg (2012) explains that Target declined to specify what demographic information it collected or purchased and later disputed his reporting without identifying the specific inaccuracies. How can customers raise concerns about how their data is being used if they do not even know how it is being used in the first place?
+
+### Principle 11: Protect the privacy and security of individuals represented in our data.
+
+It seems that Target crosses a boundary when it uses shopping data to identify potentially pregnant women before they have chosen to disclose that information. Duhigg (2012) tells the story of a father who was upset that Target was sending his teenage daughter advertisements for baby products, only to later discover that she was actually pregnant. Regardless of whether Target intended for this to happen, the story demonstrates how personalized marketing can unintentionally expose someone's private information. Additionally, the customers who created baby registries may not have anticipated that their shopping data would be used to predict other women's pregnancies. I think there is a significant difference between a company knowing what shampoo I like to use and a company knowing something about my personal life that I have not even told my family. Just because someone provides a company with their shopping data does not necessarily mean they have knowingly consented to all the conclusions that can be drawn from it.
+
+
+
+### Why Does This Matter?
+
+Ultimately, Target's use of predictive analytics demonstrates both the impressive capabilities of data science and the ethical concerns that come with them. While customers may benefit from receiving relevant coupons, Target is arguably the biggest beneficiary because it can increase sales and establish long-term relationships with customers. The people whose privacy is compromised, however, may not even know it is happening.
+
+I do not think companies should necessarily stop collecting data or using it to personalize advertisements. However, I think customers should have more knowledge of and control over what their data is being used to predict. There is a difference between using my shopping habits to figure out what products I like and using my shopping habits to figure out intimate details about my life.
+
+Just because data scientists can figure out if someone is pregnant does not mean they should.
+
+---
+
+## References
+
+Data Practices. (n.d.). *Data values and principles*. [https://datapractices.org/manifesto/](https://datapractices.org/manifesto/)
+
+Duhigg, C. (2012, February 16). How companies learn your secrets. *The New York Times Magazine*. [Read article](https://www.nytimes.com/2012/02/19/magazine/shopping-habits.html)
+
+Hill, K. (2012, February 24). Target isn't just predicting pregnancies: 'Expect more' savvy data-mining tricks. *Forbes*. [Read article](https://www.forbes.com/sites/kashmirhill/2012/02/24/target-isnt-just-predicting-pregnancies-expect-more-savvy-data-mining-tricks/)
